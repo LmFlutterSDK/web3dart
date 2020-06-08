@@ -6,7 +6,9 @@ class ContractInvocation {
   final ContractFunction _function;
   List _params;
 
-  ContractInvocation(this._client, this._contract, this._function);
+  ContractInvocation(this._client, this._contract, this._function, {List args}) {
+      _params = args;
+  }
 
   /// Creates a new [ContractInvocation] instance that will call the function with provided [args].
   ///
