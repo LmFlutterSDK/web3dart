@@ -127,4 +127,16 @@ class EtherAmount {
   @override
   bool operator ==(dynamic other) =>
       other is EtherAmount && other.getInWei == getInWei;
+
+  bool operator <(dynamic other) =>
+      other is EtherAmount && getInWei < other.getInWei;
+
+  bool operator <=(dynamic other) =>
+      other is EtherAmount && getInWei <= other.getInWei;
+
+  bool operator >(dynamic other) =>
+      other is EtherAmount && getInWei > other.getInWei;
+
+  bool operator >=(dynamic other) =>
+      other is EtherAmount && getInWei >= other.getInWei;
 }
