@@ -21,20 +21,14 @@ abstract class _Filter<T> {
 
 class _NewBlockFilter extends _Filter<String> {
   @override
-  _FilterCreationParams create() {
-    return _FilterCreationParams('eth_newBlockFilter', []);
-  }
+  _FilterCreationParams create() => _FilterCreationParams('eth_newBlockFilter', []);
+
+  @override
+  _PubSubCreationParams createPubSub() => _PubSubCreationParams(['newHeads']);
 
   @override
   String parseChanges(dynamic log) {
     return log as String;
-  }
-
-  @override
-  _PubSubCreationParams createPubSub() {
-    // the pub-sub subscription for new blocks isn't universally supported by
-    // ethereum nodes, so let's not implement it just yet.
-    return null;
   }
 }
 
@@ -45,14 +39,11 @@ class _PendingTransactionsFilter extends _Filter<String> {
   }
 
   @override
-  String parseChanges(log) {
-    return log as String;
-  }
+  _PubSubCreationParams createPubSub() => _PubSubCreationParams(['newPendingTransactions']);
 
   @override
-  _PubSubCreationParams createPubSub() {
-    // TODO: implement createPubSub
-    return null;
+  String parseChanges(log) {
+    return log as String;
   }
 }
 
@@ -287,10 +278,10 @@ class _FilterEngine {
   Stream<T> addFilter<T>(_Filter<T> filter) {
     final pubSubParams = filter.createPubSub();
     final pubSubAvailable = _client.socketConnector != null;
-    final supportsPubSub = pubSubParams != null && pubSubAvailable;
+    // final supportsPubSub = pubSubParams != null && pubSubAvailable;
 
     _InstantiatedFilter<T> instantiated;
-    instantiated = _InstantiatedFilter(filter, supportsPubSub, () {
+    instantiated = _InstantiatedFilter(filter, pubSubAvailable, () {
       _pendingUnsubcriptions.add(uninstall(instantiated));
     });
     _filters.add(instantiated);
@@ -325,6 +316,7 @@ class _FilterEngine {
     try {
       final response = await peer.sendRequest('eth_subscribe', params.params);
       filter.id = response as String;
+      print('Subscribe ID: ${filter.id}');
     } on rpc.RpcException catch (e, s) {
       filter._controller.addError(e, s);
       await filter._controller.close();
