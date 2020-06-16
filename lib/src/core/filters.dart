@@ -94,7 +94,7 @@ class FilterOptions {
   /// All further topics are the encoded values of the indexed parameters of the
   /// event. See https://solidity.readthedocs.io/en/develop/contracts.html#events
   /// for a detailed description.
-  final List<List<String>> topics;
+  final List<String> topics;
 
   FilterOptions({this.fromBlock, this.toBlock, this.address, this.topics});
 
@@ -104,9 +104,8 @@ class FilterOptions {
       this.fromBlock,
       this.toBlock})
       : address = contract.address,
-        topics = [
-          [bytesToHex(event.signature, padToEvenLength: true, include0x: true)]
-        ];
+        topics = [bytesToHex(event.signature, padToEvenLength: true, include0x: true)];
+
 }
 
 /// A log event emitted in a transaction.
