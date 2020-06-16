@@ -22,8 +22,7 @@ String bytesToHex(List<int> bytes,
   var encoded = hex.encode(bytes);
 
   if (forcePadLength != null) {
-    assert(forcePadLength >= encoded.length);
-    encoded = encoded.padLeft(forcePadLength - encoded.length, '0');
+    encoded = encoded.padLeft(forcePadLength, '0');
   }
 
   if (padToEvenLength && encoded.length % 2 != 0) {
