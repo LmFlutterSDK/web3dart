@@ -319,7 +319,6 @@ class _FilterEngine {
     try {
       final response = await peer.sendRequest('eth_subscribe', params.params);
       filter.id = response as String;
-      print('Subscribe ID: ${filter.id}');
     } on rpc.RpcException catch (e, s) {
       filter._controller.addError(e, s);
       await filter._controller.close();
