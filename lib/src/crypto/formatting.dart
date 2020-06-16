@@ -23,9 +23,7 @@ String bytesToHex(List<int> bytes,
 
   if (forcePadLength != null) {
     assert(forcePadLength >= encoded.length);
-
-    final padding = forcePadLength - encoded.length;
-    encoded = ('0' * padding) + encoded;
+    encoded = encoded.padLeft(forcePadLength - encoded.length, '0');
   }
 
   if (padToEvenLength && encoded.length % 2 != 0) {

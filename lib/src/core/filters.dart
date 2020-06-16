@@ -104,7 +104,7 @@ class FilterOptions {
       this.fromBlock,
       this.toBlock})
       : address = contract.address,
-        topics = [bytesToHex(event.signature, padToEvenLength: true, include0x: true)];
+        topics = [bytesToHex(event.signature, forcePadLength: 64, include0x: true)];
 
 }
 
@@ -228,9 +228,7 @@ class _EventFilter extends _Filter<FilterEvent> {
   _EventFilter(this.options);
 
   @override
-  _FilterCreationParams create() {
-    return _FilterCreationParams('eth_newFilter', [_createParamsObject(true)]);
-  }
+  _FilterCreationParams create() => _FilterCreationParams('eth_newFilter', [_createParamsObject(true)]);
 
   @override
   _PubSubCreationParams createPubSub() {
