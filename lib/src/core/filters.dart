@@ -21,13 +21,18 @@ abstract class _Filter<T> {
 
 class _NewBlockFilter extends _Filter<String> {
   @override
-  _FilterCreationParams create() => _FilterCreationParams('eth_newBlockFilter', []);
+  _FilterCreationParams create() =>
+      _FilterCreationParams('eth_newBlockFilter', []);
 
   @override
   _PubSubCreationParams createPubSub() => _PubSubCreationParams(['newHeads']);
 
   @override
   String parseChanges(dynamic log) {
+    if (log is Map) {
+      return log['hash'] as String;
+    }
+
     return log as String;
   }
 }
@@ -39,7 +44,8 @@ class _PendingTransactionsFilter extends _Filter<String> {
   }
 
   @override
-  _PubSubCreationParams createPubSub() => _PubSubCreationParams(['newPendingTransactions']);
+  _PubSubCreationParams createPubSub() =>
+      _PubSubCreationParams(['newPendingTransactions']);
 
   @override
   String parseChanges(log) {
