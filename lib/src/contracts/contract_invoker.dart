@@ -6,16 +6,19 @@ class ContractInvocation {
   final ContractFunction _function;
   List _params;
 
-  ContractInvocation(this._client, this._contract, this._function, {List args}) {
-      _params = args;
+  ContractInvocation(this._client, this._contract, this._function,
+      {List args}) {
+    _params = args;
   }
+
+  Uint8List get data => _function.encodeCall(_params);
 
   /// Creates a new [ContractInvocation] instance that will call the function with provided [args].
   ///
   /// Args can either be:
   ///  - a `Map`, where the key is the parameter name and the value is the argument value
-  //// - a `List`, which behaves like [ContractFunction.encodeCall].
-  ////  -a simple value, which will be wrapped in a `List` and used as a single argument.
+  ///  - a `List`, which behaves like [ContractFunction.encodeCall].
+  ///  - a simple value, which will be wrapped in a `List` and used as a single argument.
   ContractInvocation parameters([dynamic args]) {
     assert(_params == null, 'Tried to call parameters multiple times');
 
