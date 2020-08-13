@@ -73,6 +73,11 @@ class ContractInvocation {
     @required EthereumAddress from,
     EtherAmount value,
   }) {
+      print('estimateGas');
+      print(from);
+      print(value);
+      print(bytesToHex(_function.encodeCall(_params)));
+
     return _client
         .estimateGas(
           sender: from,
@@ -80,7 +85,10 @@ class ContractInvocation {
           value: value,
           data: _function.encodeCall(_params),
         )
-        .then((gas) => gas.toInt());
+        .then((gas) {
+            print(gas.toInt());
+            return gas.toInt();
+        });
   }
 
   /// Creates and sends a transaction to call this contract method with arguments from [parameters].
@@ -91,21 +99,17 @@ class ContractInvocation {
     int gasLimit,
     EtherAmount value,
     int nonce = 0,
+    BlockNum atBlock = const BlockNum.current()
   }) async {
     final sender = await from.extractAddress();
 
     if (gasLimit != null && gasLimit != 0) {
-      final estimateGas = await this.estimateGas(from: sender, value: value);
-
-      if (estimateGas > gasLimit) {
-        throw Exception(
-            'out of gas.[estimateGas:${estimateGas.toString()}, gasLimit:${gasLimit.toString()}]');
-      }
+      gasLimit = await this.estimateGas(from: sender, value: value);
     }
 
     /// payload nonce
-    if (nonce == 0) {
-      nonce = await _client.getTransactionCount(sender);
+    if ( nonce == 0 ) {
+        nonce = await _client.getTransactionCount(sender, atBlock: atBlock);
     }
 
     /// sign and sent
