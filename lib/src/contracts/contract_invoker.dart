@@ -73,11 +73,6 @@ class ContractInvocation {
     @required EthereumAddress from,
     EtherAmount value,
   }) {
-      print('estimateGas');
-      print(from);
-      print(value);
-      print(bytesToHex(_function.encodeCall(_params)));
-
     return _client
         .estimateGas(
           sender: from,
@@ -86,7 +81,6 @@ class ContractInvocation {
           data: _function.encodeCall(_params),
         )
         .then((gas) {
-            print(gas.toInt());
             return gas.toInt();
         });
   }
