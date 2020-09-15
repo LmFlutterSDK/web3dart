@@ -21,20 +21,19 @@ abstract class _Filter<T> {
 
 class _NewBlockFilter extends _Filter<String> {
   @override
-  _FilterCreationParams create() {
-    return _FilterCreationParams('eth_newBlockFilter', []);
-  }
+  _FilterCreationParams create() =>
+      _FilterCreationParams('eth_newBlockFilter', []);
+
+  @override
+  _PubSubCreationParams createPubSub() => _PubSubCreationParams(['newHeads']);
 
   @override
   String parseChanges(dynamic log) {
-    return log as String;
-  }
+    if (log is Map) {
+      return log['hash'] as String;
+    }
 
-  @override
-  _PubSubCreationParams createPubSub() {
-    // the pub-sub subscription for new blocks isn't universally supported by
-    // ethereum nodes, so let's not implement it just yet.
-    return null;
+    return log as String;
   }
 }
 
@@ -45,14 +44,12 @@ class _PendingTransactionsFilter extends _Filter<String> {
   }
 
   @override
-  String parseChanges(log) {
-    return log as String;
-  }
+  _PubSubCreationParams createPubSub() =>
+      _PubSubCreationParams(['newPendingTransactions']);
 
   @override
-  _PubSubCreationParams createPubSub() {
-    // TODO: implement createPubSub
-    return null;
+  String parseChanges(log) {
+    return log as String;
   }
 }
 
@@ -97,7 +94,7 @@ class FilterOptions {
   /// All further topics are the encoded values of the indexed parameters of the
   /// event. See https://solidity.readthedocs.io/en/develop/contracts.html#events
   /// for a detailed description.
-  final List<List<String>> topics;
+  final List<String> topics;
 
   FilterOptions({this.fromBlock, this.toBlock, this.address, this.topics});
 
@@ -107,9 +104,8 @@ class FilterOptions {
       this.fromBlock,
       this.toBlock})
       : address = contract.address,
-        topics = [
-          [bytesToHex(event.signature, padToEvenLength: true, include0x: true)]
-        ];
+        topics = [bytesToHex(event.signature, forcePadLength: 64, include0x: true)];
+
 }
 
 /// A log event emitted in a transaction.
@@ -232,9 +228,7 @@ class _EventFilter extends _Filter<FilterEvent> {
   _EventFilter(this.options);
 
   @override
-  _FilterCreationParams create() {
-    return _FilterCreationParams('eth_newFilter', [_createParamsObject(true)]);
-  }
+  _FilterCreationParams create() => _FilterCreationParams('eth_newFilter', [_createParamsObject(true)]);
 
   @override
   _PubSubCreationParams createPubSub() {
@@ -287,10 +281,10 @@ class _FilterEngine {
   Stream<T> addFilter<T>(_Filter<T> filter) {
     final pubSubParams = filter.createPubSub();
     final pubSubAvailable = _client.socketConnector != null;
-    final supportsPubSub = pubSubParams != null && pubSubAvailable;
+    // final supportsPubSub = pubSubParams != null && pubSubAvailable;
 
     _InstantiatedFilter<T> instantiated;
-    instantiated = _InstantiatedFilter(filter, supportsPubSub, () {
+    instantiated = _InstantiatedFilter(filter, pubSubAvailable, () {
       _pendingUnsubcriptions.add(uninstall(instantiated));
     });
     _filters.add(instantiated);

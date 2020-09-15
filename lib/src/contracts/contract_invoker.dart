@@ -6,14 +6,19 @@ class ContractInvocation {
   final ContractFunction _function;
   List _params;
 
-  ContractInvocation(this._client, this._contract, this._function);
+  ContractInvocation(this._client, this._contract, this._function,
+      {List args}) {
+    _params = args;
+  }
+
+  Uint8List get data => _function.encodeCall(_params);
 
   /// Creates a new [ContractInvocation] instance that will call the function with provided [args].
   ///
   /// Args can either be:
   ///  - a `Map`, where the key is the parameter name and the value is the argument value
-  //// - a `List`, which behaves like [ContractFunction.encodeCall].
-  ////  -a simple value, which will be wrapped in a `List` and used as a single argument.
+  ///  - a `List`, which behaves like [ContractFunction.encodeCall].
+  ///  - a simple value, which will be wrapped in a `List` and used as a single argument.
   ContractInvocation parameters([dynamic args]) {
     assert(_params == null, 'Tried to call parameters multiple times');
 
@@ -75,7 +80,9 @@ class ContractInvocation {
           value: value,
           data: _function.encodeCall(_params),
         )
-        .then((gas) => gas.toInt());
+        .then((gas) {
+            return gas.toInt();
+        });
   }
 
   /// Creates and sends a transaction to call this contract method with arguments from [parameters].
@@ -86,21 +93,17 @@ class ContractInvocation {
     int gasLimit,
     EtherAmount value,
     int nonce = 0,
+    BlockNum atBlock = const BlockNum.current()
   }) async {
     final sender = await from.extractAddress();
 
     if (gasLimit != null && gasLimit != 0) {
-      final estimateGas = await this.estimateGas(from: sender, value: value);
-
-      if (estimateGas > gasLimit) {
-        throw Exception(
-            'out of gas.[estimateGas:${estimateGas.toString()}, gasLimit:${gasLimit.toString()}]');
-      }
+      gasLimit = await this.estimateGas(from: sender, value: value);
     }
 
     /// payload nonce
-    if (nonce == 0) {
-      nonce = await _client.getTransactionCount(sender);
+    if ( nonce == 0 ) {
+        nonce = await _client.getTransactionCount(sender, atBlock: atBlock);
     }
 
     /// sign and sent

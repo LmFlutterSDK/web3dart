@@ -249,6 +249,10 @@ class ContractFunction {
   /// [outputs] are. For the conversions between dart types and solidity types,
   /// see the documentation for [encodeCall].
   List<dynamic> decodeReturnValues(String data) {
+    if (outputs.isEmpty) {
+      return [];
+    }
+
     final tuple = TupleType(outputs.map((p) => p.type).toList());
     final buffer = hexToBytes(data).buffer;
 

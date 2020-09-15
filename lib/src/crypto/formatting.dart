@@ -22,17 +22,14 @@ String bytesToHex(List<int> bytes,
   var encoded = hex.encode(bytes);
 
   if (forcePadLength != null) {
-    assert(forcePadLength >= encoded.length);
-
-    final padding = forcePadLength - encoded.length;
-    encoded = ('0' * padding) + encoded;
+    encoded = encoded.padLeft(forcePadLength, '0');
   }
 
   if (padToEvenLength && encoded.length % 2 != 0) {
     encoded = '0$encoded';
   }
 
-  return (include0x ? '0x' : '') + hex.encode(bytes);
+  return (include0x ? '0x' : '') + encoded;
 }
 
 /// Converts the hexadecimal string, which can be prefixed with 0x, to a byte

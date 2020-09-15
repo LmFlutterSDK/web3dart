@@ -17,8 +17,8 @@ class DeployedContract {
   ///
   /// A [ContractInvocation] bundles many common apis, like calling a function, estimating
   /// gas cost or parsing return values.
-  ContractInvocation invoker(Web3Client client, String functionName) =>
-      ContractInvocation(client, this, function(functionName));
+  ContractInvocation invoker(Web3Client client, String functionName, {List parmas = const []}) =>
+      ContractInvocation(client, this, function(functionName), args: parmas );
 
   DeployedContract(this.abi, this.address);
 
